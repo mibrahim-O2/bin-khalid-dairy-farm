@@ -1,7 +1,7 @@
 <div align="center">
 
 <img src="https://raw.githubusercontent.com/mibrahim-O2/bin-khalid-dairy-farm/main/static/bufalo.png"
-     alt="Bin Khalid Dairy Farm Logo" width="120" />
+     alt="Bin Khalid Dairy Farm Logo" width="180" />
 
 # Bin Khalid Dairy Farm
 ### Management System
