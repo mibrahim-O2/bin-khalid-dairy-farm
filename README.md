@@ -6,7 +6,7 @@
 # Bin Khalid Dairy Farm
 ### Management System
 
-*"Bin Khalid" — Son of Khalid. Built for my father, built for our farm.*
+*"Bin Khalid" Son of Khalid. Built for my father, built for our farm.*
 
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0.0-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
@@ -24,27 +24,20 @@
 
 ## 📖 The Story Behind This Project
 
-**Bin Khalid** (بن خالد) means *Son of Khalid* in Arabic — a name I chose with pride for this project, dedicated to my father **Khalid**, who runs our family dairy farm in Shahdadpur, Sindh, Pakistan.
+**Bin Khalid** (بن خالد) means *Son of Khalid* in Arabic a name I chose with pride for this project, dedicated to my father **Khalid**, who runs our family dairy farm in Shahdadpur, Sindh, Pakistan.
 
-For years, our farm manager handled every customer bill manually — calculating milk quantities, writing totals, and keeping records by hand every single month. It was time-consuming, error-prone, and entirely dependent on paper.
+For years, our farm manager handled every customer bill manually, calculating milk quantities, writing totals, and keeping records by hand every single month. It was time-consuming, error-prone, and entirely dependent on paper.
 
-As a Computer Science student, I decided to solve this the right way — by building a complete digital management system from scratch. Today, this software is **actively used every month** by our farm manager to generate customer bills, track milk delivery, and manage all voucher records. It turned a slow manual process into a fast, professional, digital workflow.
+As a Computer Science student, I decided to solve this the right way by building a complete digital management system from scratch. Today, this software is **actively used every month** by our farm manager to generate customer bills, track milk delivery, and manage all voucher records. It turned a slow manual process into a fast, professional, digital workflow.
 
 This is not a practice project. **This is real software, solving a real problem, for a real business.**
 
 ---
 
-## 🌐 Live Demo
-
-> 🔗 **[https://mibrahim02.pythonanywhere.com/](https://mibrahim02.pythonanywhere.com/)**
->
-> | Field    | Value   |
-> |----------|---------|
-> | Username | `admin` |
-> | Password | `1234`  |
-
+## 🌐 Deployment
+> Online deployment is currently in progress.  
+> The system is fully functional in the local development environment.
 ---
-
 ## 📸 Screenshots
 
 <div align="center">
@@ -69,7 +62,7 @@ This is not a practice project. **This is real software, solving a real problem,
 *Bill total recalculates instantly as data is entered — no manual math needed*
 
 <img src="https://raw.githubusercontent.com/mibrahim-O2/bin-khalid-dairy-farm/main/Screenshots/livecalculation.png"
-     alt="Live Bill Calculator" width="85%" />
+     alt="Live Bill Calculator" width="35%" />
 
 ---
 
@@ -82,7 +75,7 @@ This is not a practice project. **This is real software, solving a real problem,
 ---
 
 ### 🧾 Customer Bill — Mobile Optimized
-*Professional bilingual bill (English + Urdu) — downloadable as a PNG image for WhatsApp sharing*
+*Professional bilingual bill (English + Urdu) downloadable as a PNG image for WhatsApp sharing*
 
 <img src="https://raw.githubusercontent.com/mibrahim-O2/bin-khalid-dairy-farm/main/Screenshots/billview.png"
      alt="Bill View" width="40%" />
@@ -96,10 +89,10 @@ This is not a practice project. **This is real software, solving a real problem,
 | # | Feature | Description |
 |---|---------|-------------|
 | 🔐 | **Secure Authentication** | Session-based login system with environment variable support for production credentials |
-| 📊 | **Live Dashboard** | Real-time monthly summary — total milk collected, income earned, active customers, and voucher count |
+| 📊 | **Live Dashboard** | Real-time monthly summary, total milk collected, income earned, active customers, and voucher count |
 | 🧮 | **Live Bill Calculator** | Voucher form recalculates total milk and final bill amount instantly as fields are filled |
 | 🧾 | **Bilingual Bills** | Professional customer bills with full English and Urdu labels on every field |
-| 📥 | **Save Bill as Image** | Export any bill as a high-resolution PNG — ready to share directly on WhatsApp |
+| 📥 | **Save Bill as Image** | Export any bill as a high-resolution PNG, ready to share directly on WhatsApp |
 | 📋 | **Customer History** | View the complete voucher history for any customer with cumulative milk and billing totals |
 | ✏️ | **Edit & Delete Vouchers** | Modify any record with a live recalculation preview before committing changes |
 | 🔍 | **Customer Search** | Instantly filter the customer list by name |
@@ -114,9 +107,9 @@ This is not a practice project. **This is real software, solving a real problem,
 | Layer | Technology |
 |-------|-----------|
 | **Backend** | Python 3.10+, Flask 3.0 |
-| **Database** | SQLite3 — zero-configuration, file-based |
+| **Database** | SQLite3, zero-configuration, file-based |
 | **Frontend** | Bootstrap 5.3, Font Awesome 6.5 |
-| **Typography** | Playfair Display, DM Sans — Google Fonts |
+| **Typography** | Playfair Display, DM Sans, Google Fonts |
 | **Bill Export** | html2canvas 1.4.1 |
 | **Production Server** | Gunicorn |
 | **Deployment** | PythonAnywhere |
@@ -180,7 +173,7 @@ Milk Amount = Total Milk × Rate per KG
 Final Bill = Milk Amount + Previous Due
 ```
 ---
-The dashboard form recalculates and previews this live as the operator fills in each field — eliminating manual errors entirely.
+The dashboard form recalculates and previews this live as the operator fills in each field eliminating manual errors entirely.
 
 ---
 
@@ -226,18 +219,49 @@ python app.py
 Open **http://localhost:10000** in your browser.
 
 ---
+## 🚀 Deployment Guide
 
-## 🚀 Production Deployment
+This project is ready to deploy on any Python-compatible hosting platform.
+Below are the two most beginner-friendly free options.
 
-The project is deployed on **PythonAnywhere**. To deploy on any platform (Render, Railway, etc.):
+---
 
-**Start command:**
+### Option 1 — PythonAnywhere *(Recommended)*
+
+1. Create a free account at [pythonanywhere.com](https://www.pythonanywhere.com)
+2. Open a **Bash console** and clone the repository:
 
 ```bash
-gunicorn app:app --host 0.0.0.0 --port 10000
+git clone https://github.com/mibrahim-O2/bin-khalid-dairy-farm.git
 ```
 
-**Required environment variables:**
+3. Create a virtual environment and install dependencies:
+
+```bash
+cd bin-khalid-dairy-farm
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python init_db.py
+```
+
+4. Go to the **Web** tab → Add a new web app → Choose **Manual configuration** → Set source directory and WSGI file pointing to `app.py`
+
+---
+
+### Option 2 — Render.com
+
+1. Push your code to GitHub
+2. Create a free account at [render.com](https://render.com)
+3. New → **Web Service** → Connect your repository
+4. Set the following:
+
+| Field | Value |
+|-------|-------|
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `gunicorn app:app --host 0.0.0.0 --port 10000` |
+
+5. Add environment variables under **Environment** tab:
 
 ```env
 SECRET_KEY        = your-strong-random-secret-key
@@ -246,7 +270,6 @@ ADMIN_PASSWORD    = your-strong-password
 ```
 
 > ⚠️ Never use the default credentials (`admin` / `1234`) in a production environment.
-
 ---
 
 ## 🔮 Planned Improvements
@@ -254,7 +277,7 @@ ADMIN_PASSWORD    = your-strong-password
 The following enhancements are planned for future versions:
 
 - [ ] 👥 Multi-user roles (Admin, Manager, Viewer)
-- [ ] 📊 Visual analytics — monthly charts and income graphs
+- [ ] 📊 Visual analytics monthly charts and income graphs
 - [ ] ☁️ PostgreSQL / MySQL cloud database support
 - [ ] 🔔 Automated WhatsApp bill delivery to customers
 - [ ] 📄 PDF bill export in addition to image download
@@ -266,7 +289,7 @@ The following enhancements are planned for future versions:
 
 I am a **Computer Science student** from Shahdadpur, Sindh, Pakistan.
 
-I built this system to solve a real problem in my own family's business — replacing a slow, manual monthly billing process with a fast, professional, digital solution. Every part of this project — from the Flask backend and SQLite database design to the responsive UI, bilingual bill generation, and live deployment — was designed, built, and shipped by me.
+I built this system to solve a real problem in my own family's business, replacing a slow, manual monthly billing process with a fast, professional, digital solution. Every part of this project from the Flask backend and SQLite database design to the responsive UI, bilingual bill generation, and live deployment was designed, built, and shipped by me.
 
 This project represents my ability to take a real-world problem, design a complete solution, and deliver working software that people actually use.
 
@@ -301,7 +324,7 @@ git push origin feature/your-feature-name
 | 🏡 **Farm Name** | Bin Khalid Dairy Farm |
 | 📍 **Location** | Shahdadpur, Sindh, Pakistan |
 | 📞 **Phone** | 0324-2991303 |
-| 💚 **Easypaisa** | 0324-2991303 |
+| 💚 **Easypaisa** | 0324-299130 |
 | ❤️ **JazzCash** | 0324-2991303 |
 | 👤 **Account Title** | Muhammad Ibrahim |
 
@@ -316,7 +339,7 @@ You are free to use, modify, and distribute it with attribution.
 
 <div align="center">
 
-**Built with ❤️ for my father Khalid and our family dairy farm**
+**Built with ❤️ for family dairy farm**
 
 *Shahdadpur, Sindh, Pakistan 🇵🇰*
 
