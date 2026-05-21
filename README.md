@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/mibrahim-O2/bin-khalid-dairy-farm/main/static/buffalo.png"
+<img src="https://raw.githubusercontent.com/mibrahim-O2/bin-khalid-dairy-farm/main/static/bufalo.png"
      alt="Bin Khalid Dairy Farm Logo" width="120" />
 
 # Bin Khalid Dairy Farm
@@ -123,5 +123,211 @@ This is not a practice project. **This is real software, solving a real problem,
 | **Logo Design** | Canva / Google Gemini AI |
 
 ---
-
 ## 📁 Project Structure
+
+```text
+bin-khalid-dairy-farm/
+│
+├── static/
+│   └── buffalo.png              ← Custom farm logo
+│
+├── templates/
+│   ├── base.html                ← Shared layout (sidebar, topbar, flash toasts)
+│   ├── login.html               ← Split-panel login page
+│   ├── index.html               ← Main dashboard
+│   ├── edit.html                ← Edit voucher with live recalculation
+│   ├── bill.html                ← Mobile bill with Save as Image
+│   └── history.html             ← Full customer voucher history
+│
+├── Screenshots/                 ← Project screenshots
+│
+├── app.py                       ← Flask routes and business logic
+├── init_db.py                   ← One-time database initialisation
+├── database.db                  ← SQLite database (auto-generated)
+├── requirements.txt             ← Python dependencies
+└── .gitignore                   ← Git ignore rules
+````
+---
+
+## 🗄️ Database Schema
+
+**Table: `vouchers`**
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INTEGER | Primary key, auto-increment |
+| `name` | TEXT | Customer name |
+| `date` | TEXT | Voucher date (YYYY-MM-DD) |
+| `days` | INTEGER | Total days milk was delivered |
+| `rate` | REAL | Rate per KG in PKR |
+| `daily` | REAL | Daily milk quantity in KG |
+| `extra` | REAL | Extra milk added |
+| `used` | REAL | Milk deducted |
+| `due` | REAL | Previous outstanding balance |
+| `total_milk` | REAL | Calculated total milk (KG) |
+| `amount` | REAL | Calculated milk amount (PKR) |
+| `final_bill` | REAL | Final bill including dues (PKR) |
+| `created_at` | TEXT | Record creation timestamp |
+
+---
+
+## 🧮 Billing Formula
+
+The system uses this formula to calculate every bill automatically:
+```text
+Total Milk = (Daily Milk × Total Days) + Extra Milk − Milk Deducted
+Milk Amount = Total Milk × Rate per KG
+Final Bill = Milk Amount + Previous Due
+```
+---
+The dashboard form recalculates and previews this live as the operator fills in each field — eliminating manual errors entirely.
+
+---
+
+## ⚙️ Local Installation
+
+### 1 — Clone the repository
+
+```bash
+git clone https://github.com/mibrahim-O2/bin-khalid-dairy-farm.git
+cd bin-khalid-dairy-farm
+```
+
+### 2 — Create and activate a virtual environment
+
+```bash
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# macOS / Linux
+source venv/bin/activate
+```
+
+### 3 — Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4 — Initialise the database
+
+```bash
+python init_db.py
+```
+
+### 5 — Start the application
+
+```bash
+python app.py
+```
+
+Open **http://localhost:10000** in your browser.
+
+---
+
+## 🚀 Production Deployment
+
+The project is deployed on **PythonAnywhere**. To deploy on any platform (Render, Railway, etc.):
+
+**Start command:**
+
+```bash
+gunicorn app:app --host 0.0.0.0 --port 10000
+```
+
+**Required environment variables:**
+
+```env
+SECRET_KEY        = your-strong-random-secret-key
+ADMIN_USERNAME    = your-username
+ADMIN_PASSWORD    = your-strong-password
+```
+
+> ⚠️ Never use the default credentials (`admin` / `1234`) in a production environment.
+
+---
+
+## 🔮 Planned Improvements
+
+The following enhancements are planned for future versions:
+
+- [ ] 👥 Multi-user roles (Admin, Manager, Viewer)
+- [ ] 📊 Visual analytics — monthly charts and income graphs
+- [ ] ☁️ PostgreSQL / MySQL cloud database support
+- [ ] 🔔 Automated WhatsApp bill delivery to customers
+- [ ] 📄 PDF bill export in addition to image download
+- [ ] 🌐 Full Urdu language interface option
+
+---
+
+## 👨‍💻 About the Developer
+
+I am a **Computer Science student** from Shahdadpur, Sindh, Pakistan.
+
+I built this system to solve a real problem in my own family's business — replacing a slow, manual monthly billing process with a fast, professional, digital solution. Every part of this project — from the Flask backend and SQLite database design to the responsive UI, bilingual bill generation, and live deployment — was designed, built, and shipped by me.
+
+This project represents my ability to take a real-world problem, design a complete solution, and deliver working software that people actually use.
+
+> *"The best code is the code that solves a real problem for real people."*
+
+---
+
+## 🤝 Contributing
+
+Contributions, suggestions, and improvements are welcome.
+
+```bash
+# 1. Fork the repository
+# 2. Create your feature branch
+git checkout -b feature/your-feature-name
+
+# 3. Commit your changes
+git commit -m "Add: your feature description"
+
+# 4. Push to your branch
+git push origin feature/your-feature-name
+
+# 5. Open a Pull Request
+```
+
+---
+
+## 📞 Farm Information
+
+| | |
+|---|---|
+| 🏡 **Farm Name** | Bin Khalid Dairy Farm |
+| 📍 **Location** | Shahdadpur, Sindh, Pakistan |
+| 📞 **Phone** | 0324-2991303 |
+| 💚 **Easypaisa** | 0324-2991303 |
+| ❤️ **JazzCash** | 0324-2991303 |
+| 👤 **Account Title** | Muhammad Ibrahim |
+
+---
+
+## 📜 License
+
+This project is open source and available under the [MIT License](LICENSE).
+You are free to use, modify, and distribute it with attribution.
+
+---
+
+<div align="center">
+
+**Built with ❤️ for my father Khalid and our family dairy farm**
+
+*Shahdadpur, Sindh, Pakistan 🇵🇰*
+
+<br/>
+
+⭐ **If this project helped or inspired you, please consider giving it a star!** ⭐
+
+<br/>
+
+[![GitHub](https://img.shields.io/badge/GitHub-mibrahim--O2-181717?style=for-the-badge&logo=github)](https://github.com/mibrahim-O2)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-mibrahim02.pythonanywhere.com-1a9e5f?style=for-the-badge)](https://mibrahim02.pythonanywhere.com/)
+
+</div>
+
