@@ -1,192 +1,304 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, flash
 import sqlite3
 from datetime import datetime
+from functools import wraps
 import os
 
-# ======================
-# FLASK APP
-# ======================
+# ============================================================
+#  BIN KHALID DAIRY FARM — Flask Application
+# ============================================================
+
 app = Flask(__name__)
-app.secret_key = "secret123"  # CHANGE TO STRONG SECRET FOR PRODUCTION
 
-# ======================
-# LOGIN CREDENTIALS
-# ======================
-USERNAME = "admin"
-PASSWORD = "1234"
+# ── Security ────────────────────────────────────────────────
+app.secret_key = os.environ.get("SECRET_KEY", "bkdf-change-this-in-production-2025!")
 
-# ======================
-# DATABASE CONNECTION
-# ======================
-def get_db():
+# ── Credentials (use env vars in production) ────────────────
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "1234")
+
+
+# ============================================================
+#  CONTEXT PROCESSOR — inject `now` into every template
+# ============================================================
+
+@app.context_processor
+def inject_now():
+    return {"now": datetime.now()}
+
+
+# ============================================================
+#  DATABASE
+# ============================================================
+
+def get_db() -> sqlite3.Connection:
+    """Return a database connection with Row factory."""
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
-# ======================
-# STATIC PATHS
-# ======================
-LOGO_PATH = os.path.join('static', 'images', 'logo.png')
-FONT_PATH = os.path.join('static', 'fonts', 'NotoNastaliq-Regular.ttf')
 
-# ======================
-# LOGIN REQUIRED DECORATOR
-# ======================
-def login_required(func):
-    def wrapper(*args, **kwargs):
+# ============================================================
+#  AUTH DECORATOR
+# ============================================================
+
+def login_required(f):
+    """Redirect to login if user is not authenticated."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
         if not session.get("logged_in"):
-            return redirect("/login")
-        return func(*args, **kwargs)
-    wrapper.__name__ = func.__name__
-    return wrapper
+            flash("Please log in to continue.", "warning")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
 
-# ======================
-# LOGIN ROUTE
-# ======================
+
+# ============================================================
+#  AUTH ROUTES
+# ============================================================
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if session.get("logged_in"):
+        return redirect(url_for("home"))
+
     error = None
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        if username == USERNAME and password == PASSWORD:
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
             session["logged_in"] = True
-            return redirect("/")
+            session["username"]  = username
+            flash("Welcome back!", "success")
+            return redirect(url_for("home"))
         else:
-            error = "Invalid credentials"
+            error = "Invalid username or password. Please try again."
+
     return render_template("login.html", error=error)
 
-# ======================
-# LOGOUT ROUTE
-# ======================
+
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/login")
+    flash("You have been logged out successfully.", "info")
+    return redirect(url_for("login"))
 
-# ======================
-# HOME DASHBOARD
-# ======================
+
+# ============================================================
+#  DASHBOARD / HOME
+# ============================================================
+
 @app.route("/")
 @login_required
 def home():
-    search = request.args.get("search")
-    db = get_db()
+    search = request.args.get("search", "").strip()
+    db     = get_db()
 
+    # ── Fetch vouchers ───────────────────────────────────────
     if search:
         vouchers = db.execute(
-            "SELECT * FROM vouchers WHERE name LIKE ?",
-            ('%' + search + '%',)
+            "SELECT * FROM vouchers WHERE name LIKE ? ORDER BY date DESC",
+            (f"%{search}%",)
         ).fetchall()
     else:
-        vouchers = db.execute("SELECT * FROM vouchers").fetchall()
+        vouchers = db.execute(
+            "SELECT * FROM vouchers ORDER BY date DESC"
+        ).fetchall()
 
-    latest = {}
+    # ── Latest voucher per customer ──────────────────────────
+    latest: dict = {}
     for v in vouchers:
-        name = v["name"]
-        date = datetime.strptime(v["date"], "%Y-%m-%d")
-        if name not in latest or date > datetime.strptime(latest[name]["date"], "%Y-%m-%d"):
+        name   = v["name"]
+        v_date = datetime.strptime(v["date"], "%Y-%m-%d")
+        if name not in latest or v_date > datetime.strptime(latest[name]["date"], "%Y-%m-%d"):
             latest[name] = v
 
     customers = list(latest.values())
 
-    month = datetime.now().strftime("%Y-%m")
+    # ── Monthly summary ──────────────────────────────────────
+    month  = datetime.now().strftime("%Y-%m")
     report = db.execute(
-        "SELECT SUM(amount) as income, SUM(total_milk) as milk FROM vouchers WHERE date LIKE ?",
-        (month + "%",)
+        """SELECT
+              COALESCE(SUM(amount), 0)     AS income,
+              COALESCE(SUM(total_milk), 0) AS milk,
+              COUNT(*)                     AS total_vouchers
+           FROM vouchers WHERE date LIKE ?""",
+        (f"{month}%",)
     ).fetchone()
 
-    income = report["income"] if report["income"] else 0
-    milk = report["milk"] if report["milk"] else 0
+    # ── Total distinct customers ─────────────────────────────
+    total_customers = db.execute(
+        "SELECT COUNT(DISTINCT name) AS cnt FROM vouchers"
+    ).fetchone()["cnt"]
 
-    return render_template("index.html", customers=customers, income=income, milk=milk)
+    # ── Recent 5 vouchers ────────────────────────────────────
+    recent = db.execute(
+        "SELECT * FROM vouchers ORDER BY id DESC LIMIT 5"
+    ).fetchall()
 
-# ======================
-# ADD VOUCHER
-# ======================
+    return render_template(
+        "index.html",
+        customers       = customers,
+        income          = report["income"],
+        milk            = report["milk"],
+        total_vouchers  = report["total_vouchers"],
+        total_customers = total_customers,
+        recent          = recent,
+        search          = search,
+        current_month   = datetime.now().strftime("%B %Y"),
+    )
+
+
+# ============================================================
+#  SHARED FORM PARSER
+# ============================================================
+
+def _parse_voucher_form(form) -> dict:
+    """Extract and compute all voucher fields from a POST form."""
+    days  = int(form["days"])
+    rate  = float(form["rate"])
+    daily = float(form["daily"])
+    extra = float(form["extra"])
+    used  = float(form["used"])
+    due   = float(form["due"])
+
+    total_milk = (daily * days) + extra - used
+    amount     = total_milk * rate
+    final_bill = amount + due
+
+    return dict(
+        name       = form["name"].strip(),
+        date       = form["date"],
+        days       = days,
+        rate       = rate,
+        daily      = daily,
+        extra      = extra,
+        used       = used,
+        due        = due,
+        total_milk = round(total_milk, 2),
+        amount     = round(amount, 2),
+        final_bill = round(final_bill, 2),
+    )
+
+
+# ============================================================
+#  VOUCHER — ADD
+# ============================================================
+
 @app.route("/add_voucher", methods=["POST"])
 @login_required
 def add_voucher():
-    name = request.form["name"]
-    date = request.form["date"]
-    days = int(request.form["days"])
-    rate = float(request.form["rate"])
-    daily = float(request.form["daily"])
-    extra = float(request.form["extra"])
-    used = float(request.form["used"])
-    due = float(request.form["due"])
+    try:
+        v  = _parse_voucher_form(request.form)
+        db = get_db()
+        db.execute(
+            """INSERT INTO vouchers
+               (name,date,days,rate,daily,extra,used,due,total_milk,amount,final_bill)
+               VALUES (:name,:date,:days,:rate,:daily,:extra,:used,:due,
+                       :total_milk,:amount,:final_bill)""",
+            v
+        )
+        db.commit()
+        flash(f"Voucher for <strong>{v['name']}</strong> added successfully!", "success")
+    except (ValueError, KeyError) as e:
+        flash(f"Error adding voucher: {e}", "danger")
 
-    total_milk = (daily * days) + extra - used
-    amount = total_milk * rate
-    final_bill = amount + due
+    return redirect(url_for("home"))
 
-    db = get_db()
-    db.execute("""
-        INSERT INTO vouchers
-        (name,date,days,rate,daily,extra,used,due,total_milk,amount,final_bill)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)
-    """, (name,date,days,rate,daily,extra,used,due,total_milk,amount,final_bill))
-    db.commit()
-    return redirect("/")
 
-# ======================
-# EDIT VOUCHER
-# ======================
-@app.route("/edit/<int:id>")
+# ============================================================
+#  VOUCHER — EDIT / UPDATE
+# ============================================================
+
+@app.route("/edit/<int:voucher_id>")
 @login_required
-def edit(id):
-    db = get_db()
-    data = db.execute("SELECT * FROM vouchers WHERE id=?", (id,)).fetchone()
+def edit(voucher_id: int):
+    db   = get_db()
+    data = db.execute("SELECT * FROM vouchers WHERE id = ?", (voucher_id,)).fetchone()
+    if not data:
+        flash("Voucher not found.", "warning")
+        return redirect(url_for("home"))
     return render_template("edit.html", data=data)
 
-@app.route("/update/<int:id>", methods=["POST"])
+
+@app.route("/update/<int:voucher_id>", methods=["POST"])
 @login_required
-def update(id):
-    name = request.form["name"]
-    date = request.form["date"]
-    days = int(request.form["days"])
-    rate = float(request.form["rate"])
-    daily = float(request.form["daily"])
-    extra = float(request.form["extra"])
-    used = float(request.form["used"])
-    due = float(request.form["due"])
+def update(voucher_id: int):
+    try:
+        v  = _parse_voucher_form(request.form)
+        db = get_db()
+        db.execute(
+            """UPDATE vouchers SET
+               name=:name, date=:date, days=:days, rate=:rate,
+               daily=:daily, extra=:extra, used=:used, due=:due,
+               total_milk=:total_milk, amount=:amount, final_bill=:final_bill
+               WHERE id=:id""",
+            {**v, "id": voucher_id}
+        )
+        db.commit()
+        flash(f"Voucher for <strong>{v['name']}</strong> updated successfully!", "success")
+    except (ValueError, KeyError) as e:
+        flash(f"Error updating voucher: {e}", "danger")
 
-    total_milk = (daily * days) + extra - used
-    amount = total_milk * rate
-    final_bill = amount + due
+    return redirect(url_for("home"))
 
-    db = get_db()
-    db.execute("""
-        UPDATE vouchers SET
-        name=?,date=?,days=?,rate=?,daily=?,extra=?,used=?,due=?,total_milk=?,amount=?,final_bill=?
-        WHERE id=?
-    """, (name,date,days,rate,daily,extra,used,due,total_milk,amount,final_bill,id))
-    db.commit()
-    return redirect("/")
 
-# ======================
-# DELETE VOUCHER
-# ======================
-@app.route("/delete/<int:id>", methods=["POST"])
+# ============================================================
+#  VOUCHER — DELETE
+# ============================================================
+
+@app.route("/delete/<int:voucher_id>", methods=["POST"])
 @login_required
-def delete(id):
-    db = get_db()
-    db.execute("DELETE FROM vouchers WHERE id=?", (id,))
-    db.commit()
-    return redirect("/")
+def delete(voucher_id: int):
+    db  = get_db()
+    row = db.execute("SELECT name FROM vouchers WHERE id = ?", (voucher_id,)).fetchone()
+    if row:
+        db.execute("DELETE FROM vouchers WHERE id = ?", (voucher_id,))
+        db.commit()
+        flash(f"Voucher for <strong>{row['name']}</strong> deleted.", "info")
+    else:
+        flash("Voucher not found.", "warning")
+    return redirect(url_for("home"))
 
-# ======================
-# VIEW BILL
-# ======================
-@app.route("/bill/<int:id>")
+
+# ============================================================
+#  BILL VIEW
+# ============================================================
+
+@app.route("/bill/<int:voucher_id>")
 @login_required
-def bill(id):
-    db = get_db()
-    data = db.execute("SELECT * FROM vouchers WHERE id=?", (id,)).fetchone()
-    return render_template("bill.html", data=data, logo_path=LOGO_PATH, font_path=FONT_PATH)
+def bill(voucher_id: int):
+    db   = get_db()
+    data = db.execute("SELECT * FROM vouchers WHERE id = ?", (voucher_id,)).fetchone()
+    if not data:
+        flash("Voucher not found.", "warning")
+        return redirect(url_for("home"))
+    return render_template("bill.html", data=data)
 
-# ======================
-# RUN APP
-# ======================
+
+# ============================================================
+#  HISTORY — all vouchers for one customer
+# ============================================================
+
+@app.route("/history/<string:customer_name>")
+@login_required
+def history(customer_name: str):
+    db      = get_db()
+    records = db.execute(
+        "SELECT * FROM vouchers WHERE name = ? ORDER BY date DESC",
+        (customer_name,)
+    ).fetchall()
+    if not records:
+        flash(f"No records found for '{customer_name}'.", "warning")
+        return redirect(url_for("home"))
+    return render_template("history.html", records=records, customer_name=customer_name)
+
+
+# ============================================================
+#  RUN
+# ============================================================
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000, debug=True)
+    app.run(host="0.0.0.0", port=10000, debug=False)

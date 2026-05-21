@@ -1,81 +1,257 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Bin Khalid Dairy Farm</title>
 
-<style>
-body{
-font-family:Arial;
-background:#f4f6f8;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
-.box{
-background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-width:300px;
-text-align:center;
-}
+  <style>
+    :root {
+      --brand-dark:   #0d2137;
+      --brand-mid:    #133552;
+      --brand-accent: #1a9e5f;
+      --brand-gold:   #e8a020;
+      --font-display: 'Playfair Display', serif;
+      --font-body:    'DM Sans', sans-serif;
+    }
 
-h2{
-margin-bottom:20px;
-}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-input{
-width:100%;
-padding:10px;
-margin:8px 0;
-border:1px solid #ccc;
-border-radius:5px;
-}
+    body {
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      background: var(--brand-dark);
+      overflow: hidden;
+    }
 
-button{
-width:100%;
-padding:10px;
-background:#1f3a5f;
-color:white;
-border:none;
-border-radius:5px;
-cursor:pointer;
-}
+    /* ── Left decorative panel ── */
+    .login-left {
+      flex: 1;
+      background: linear-gradient(160deg, var(--brand-mid) 0%, var(--brand-dark) 60%, #061420 100%);
+      position: relative;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 60px 52px;
+      overflow: hidden;
+    }
 
-.error{
-color:red;
-font-size:13px;
-}
-</style>
+    .circle { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.05); }
+    .circle-1 { width: 420px; height: 420px; top: -80px; left: -100px; }
+    .circle-2 { width: 280px; height: 280px; bottom: -60px; right: -60px; background: rgba(26,158,95,.05); border-color: rgba(26,158,95,.12); }
+    .circle-3 { width: 160px; height: 160px; top: 40%; right: 60px; background: rgba(232,160,32,.04); border-color: rgba(232,160,32,.1); }
 
+    .dot { position: absolute; border-radius: 50%; background: rgba(26,158,95,.4); animation: float 5s ease-in-out infinite; }
+    .dot-1 { width: 8px; height: 8px; top: 18%; left: 22%; animation-delay: 0s; }
+    .dot-2 { width: 5px; height: 5px; top: 70%; left: 14%; animation-delay: 1.5s; }
+    .dot-3 { width: 6px; height: 6px; top: 45%; right: 18%; animation-delay: 3s; background: rgba(232,160,32,.5); }
+
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+    .brand-lockup { position: relative; z-index: 2; text-align: center; }
+
+    .brand-emblem {
+      width: 90px; height: 90px;
+      background: linear-gradient(135deg, var(--brand-accent), #0e7a49);
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; color: #fff;
+      margin: 0 auto 28px;
+      box-shadow: 0 12px 40px rgba(26,158,95,.4);
+    }
+
+    .brand-name     { font-family: var(--font-display); font-size: 32px; color: #fff; line-height: 1.2; margin-bottom: 10px; }
+    .brand-tagline  { font-size: 14px; color: rgba(255,255,255,.45); letter-spacing: .5px; }
+    .brand-divider  { width: 40px; height: 2px; background: var(--brand-accent); margin: 20px auto; border-radius: 2px; }
+
+    .feature-list { list-style: none; margin-top: 36px; text-align: left; }
+
+    .feature-list li {
+      display: flex; align-items: center; gap: 12px;
+      color: rgba(255,255,255,.55); font-size: 13.5px; margin-bottom: 14px;
+    }
+
+    .feature-list li i {
+      width: 26px; height: 26px;
+      background: rgba(26,158,95,.15); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--brand-accent); font-size: 11px; flex-shrink: 0;
+    }
+
+    /* ── Right form panel ── */
+    .login-right {
+      width: 460px; background: #fff;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 52px 48px; position: relative;
+    }
+
+    .login-right::before {
+      content: '';
+      position: absolute; top: 0; bottom: 0; left: 0;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(26,158,95,.3) 50%, transparent);
+    }
+
+    .login-greeting { margin-bottom: 36px; }
+    .login-greeting .sup { font-size: 11px; font-weight: 600; color: var(--brand-accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+    .login-greeting h1   { font-family: var(--font-display); font-size: 30px; color: var(--brand-dark); font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+    .login-greeting p    { font-size: 14px; color: #6a7f94; line-height: 1.6; }
+
+    .form-group { margin-bottom: 20px; }
+
+    .form-label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: #4a5e72; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-wrap i {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: #9aabb9; font-size: 15px; transition: all .2s; pointer-events: none;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 13px 14px 13px 42px;
+      background: #f8fafd; border: 1.5px solid #dde5ef;
+      border-radius: 10px; font-size: 14.5px; color: var(--brand-dark);
+      font-family: var(--font-body); outline: none; transition: all .25s;
+    }
+
+    .input-wrap input:focus {
+      border-color: var(--brand-accent); background: #fff;
+      box-shadow: 0 0 0 3px rgba(26,158,95,.1);
+    }
+
+    .input-wrap:focus-within i { color: var(--brand-accent); }
+
+    .btn-login {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--brand-accent), #0e7a49);
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 600; font-family: var(--font-body);
+      cursor: pointer; transition: all .25s;
+      box-shadow: 0 4px 16px rgba(26,158,95,.35);
+      margin-top: 8px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+    }
+
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,158,95,.45); }
+    .btn-login:active { transform: translateY(0); }
+
+    .error-alert {
+      background: rgba(220,53,69,.06); border: 1.5px solid rgba(220,53,69,.2);
+      border-radius: 10px; padding: 12px 16px;
+      display: flex; align-items: center; gap: 10px;
+      color: #c0392b; font-size: 13.5px; margin-bottom: 22px;
+      animation: shake .4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60%  { transform: translateX(-5px); }
+      40%, 80%  { transform: translateX(5px); }
+    }
+
+    .login-footer {
+      margin-top: 36px; padding-top: 24px;
+      border-top: 1px solid #edf2f7; text-align: center;
+    }
+
+    .login-footer p { font-size: 12px; color: #9aabb9; }
+
+    .login-footer .contact {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      color: var(--brand-accent); font-size: 13px; font-weight: 500;
+      margin-top: 8px; text-decoration: none;
+    }
+
+    @media (max-width: 860px) { .login-left { display: none; } .login-right { width: 100%; } }
+    @media (max-width: 480px) { .login-right { padding: 36px 24px; } }
+  </style>
 </head>
 
 <body>
 
-<div class="box">
+  <!-- Decorative left panel -->
+  <div class="login-left">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+    <div class="dot dot-1"></div>
+    <div class="dot dot-2"></div>
+    <div class="dot dot-3"></div>
 
-<h2>Login</h2>
-
-{% if error %}
-
-<p class="error">{{ error }}</p>
-{% endif %}
-
-<form method="POST">
-
-<input type="text" name="username" placeholder="Username" required>
-
-<input type="password" name="password" placeholder="Password" required>
-
-<button>Login</button>
-
-</form>
-
+ <div class="brand-emblem">
+  <img src="{{ url_for('static', filename='bufalo.png') }}"
+       alt="Bin Khalid Dairy Farm"
+       style="width:100%;height:100%;object-fit:cover;border-radius:12px;" />
 </div>
+      <div class="brand-name">Bin Khalid<br>Dairy Farm</div>
+      <div class="brand-divider"></div>
+      <div class="brand-tagline">Fresh Milk — Happy Customers</div>
+
+      <ul class="feature-list">
+        <li><i class="fa-solid fa-chart-line"></i> Monthly income &amp; milk tracking</li>
+        <li><i class="fa-solid fa-file-invoice-dollar"></i> Professional bill generation</li>
+        <li><i class="fa-solid fa-users"></i> Customer voucher management</li>
+        <li><i class="fa-solid fa-mobile-screen-button"></i> Easypaisa &amp; JazzCash payments</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Form panel -->
+  <div class="login-right">
+    <div class="login-greeting">
+      <div class="sup">Farm Management System</div>
+      <h1>Welcome<br>Back 👋</h1>
+      <p>Sign in to access your dashboard and manage customer records.</p>
+    </div>
+
+    {% if error %}
+    <div class="error-alert">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('login') }}" autocomplete="off">
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-user"></i>
+          <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required />
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        Sign In to Dashboard
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p>Need help? Contact the farm admin</p>
+      <a href="tel:03242991303" class="contact">
+        <i class="fa-solid fa-phone"></i> 0324-2991303
+      </a>
+    </div>
+  </div>
 
 </body>
 </html>

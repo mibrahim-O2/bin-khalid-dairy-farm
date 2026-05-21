@@ -1,105 +1,187 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html>
-<head>
+{% block title %}Edit Voucher — {{ data.name }}{% endblock %}
+{% block page_title %}Edit Voucher{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('home') }}" style="color:var(--brand-accent);text-decoration:none;">Dashboard</a>
+  &rsaquo; Edit — {{ data.name }}
+{% endblock %}
 
-<meta charset="UTF-8">
-<title>Edit Voucher</title>
+{% block content %}
 
-<style>
+<div class="row justify-content-center">
+  <div class="col-xl-8 col-lg-10">
 
-body{
-font-family:Arial;
-background:#f4f4f4;
-margin:0;
-}
+    <!-- Back link -->
+    <a href="{{ url_for('home') }}" class="btn-outline-bkdf mb-4 d-inline-flex">
+      <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+    </a>
 
-.container{
-width:700px;
-margin:50px auto;
-background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
+    <div class="card-bkdf">
 
-h1{
-text-align:center;
-color:#1a7f37;
-}
+      <div class="card-header-bkdf">
+        <div>
+          <div class="card-title-bkdf">
+            <i class="fa-solid fa-pen-to-square me-2" style="color:var(--brand-accent);font-size:15px;"></i>
+            Edit Voucher
+          </div>
+          <div style="font-size:12px;color:#9aabb9;margin-top:4px;">
+            Updating record for <strong style="color:var(--brand-dark);">{{ data.name }}</strong>
+            — ID #{{ data.id }}
+          </div>
+        </div>
+        <span class="badge-bkdf badge-green">
+          <i class="fa-solid fa-database me-1"></i>Voucher #{{ data.id }}
+        </span>
+      </div>
 
-label{
-display:block;
-margin-top:10px;
-font-weight:bold;
-}
+      <div class="card-body-bkdf">
+        <form method="POST" action="{{ url_for('update', voucher_id=data.id) }}" id="editForm">
 
-input{
-width:100%;
-padding:8px;
-margin-top:5px;
-border:1px solid #ccc;
-border-radius:5px;
-}
+          <div class="row g-3">
 
-button{
-margin-top:20px;
-padding:10px 15px;
-background:#1a7f37;
-color:white;
-border:none;
-border-radius:5px;
-cursor:pointer;
-}
+            <!-- Customer Info -->
+            <div class="col-12">
+              <div class="form-section-title">Customer Information</div>
+            </div>
 
-button:hover{
-background:#155d27;
-}
+            <div class="col-md-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Customer Name</label>
+                <input type="text" name="name" class="form-control-bkdf"
+                       value="{{ data.name }}" required />
+              </div>
+            </div>
 
-.back{
-margin-top:15px;
-display:inline-block;
-text-decoration:none;
-color:#555;
-}
+            <div class="col-md-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Date</label>
+                <input type="date" name="date" class="form-control-bkdf"
+                       value="{{ data.date }}" required />
+              </div>
+            </div>
 
-</style>
+            <!-- Milk Details -->
+            <div class="col-12 mt-2">
+              <div class="form-section-title">Milk Details</div>
+            </div>
 
-</head>
+            <div class="col-md-3 col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Total Days</label>
+                <input type="number" name="days" class="form-control-bkdf edit-calc"
+                       value="{{ data.days }}" min="1" required />
+              </div>
+            </div>
 
-<body>
+            <div class="col-md-3 col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Rate / KG (PKR)</label>
+                <input type="number" name="rate" class="form-control-bkdf edit-calc"
+                       value="{{ data.rate }}" step="0.01" min="0" required />
+              </div>
+            </div>
 
-<div class="container">
+            <div class="col-md-3 col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Daily Milk (KG)</label>
+                <input type="number" name="daily" class="form-control-bkdf edit-calc"
+                       value="{{ data.daily }}" step="0.01" min="0" required />
+              </div>
+            </div>
 
-<h1>Edit Voucher</h1>
+            <div class="col-md-3 col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Extra Milk (KG)</label>
+                <input type="number" name="extra" class="form-control-bkdf edit-calc"
+                       value="{{ data.extra }}" step="0.01" min="0" required />
+              </div>
+            </div>
 
-<form method="POST" action="/update/{{data.id}}">
+            <div class="col-md-3 col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Milk Used (KG)</label>
+                <input type="number" name="used" class="form-control-bkdf edit-calc"
+                       value="{{ data.used }}" step="0.01" min="0" required />
+              </div>
+            </div>
 
-<label>Name</label> <input type="text" name="name" value="{{data.name}}" required>
+            <div class="col-md-3 col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Previous Due (PKR)</label>
+                <input type="number" name="due" class="form-control-bkdf edit-calc"
+                       value="{{ data.due }}" step="0.01" min="0" required />
+              </div>
+            </div>
 
-<label>Date</label> <input type="date" name="date" value="{{data.date}}" required>
+            <!-- Computed values (read-only display) -->
+            <div class="col-12 mt-2">
+              <div class="calc-preview">
+                <div style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
+                  Recalculated Preview
+                </div>
+                <div class="calc-row">
+                  <span>Total Milk</span>
+                  <span id="e-milk">{{ data.total_milk }} KG</span>
+                </div>
+                <div class="calc-row">
+                  <span>Milk Amount</span>
+                  <span id="e-amount">PKR {{ "{:,.0f}".format(data.amount) }}</span>
+                </div>
+                <div class="calc-row">
+                  <span>Previous Due</span>
+                  <span id="e-due">PKR {{ "{:,.0f}".format(data.due) }}</span>
+                </div>
+                <div class="calc-row total">
+                  <span>Total Bill</span>
+                  <span id="e-total">PKR {{ "{:,.0f}".format(data.final_bill) }}</span>
+                </div>
+              </div>
+            </div>
 
-<label>Total Days</label> <input type="number" name="days" value="{{data.days}}" required>
+          </div><!-- /row -->
 
-<label>Rate per KG</label> <input type="number" name="rate" step="0.01" value="{{data.rate}}" required>
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn-primary-bkdf" style="flex:1;justify-content:center;">
+              <i class="fa-solid fa-floppy-disk"></i> Save Changes
+            </button>
+            <a href="{{ url_for('home') }}" class="btn-outline-bkdf">
+              Cancel
+            </a>
+          </div>
 
-<label>Daily Milk</label> <input type="number" name="daily" step="0.01" value="{{data.daily}}" required>
+        </form>
+      </div><!-- /card-body -->
 
-<label>Extra Milk</label> <input type="number" name="extra" step="0.01" value="{{data.extra}}" required>
-
-<label>Milk Used</label> <input type="number" name="used" step="0.01" value="{{data.used}}" required>
-
-<label>Previous Due</label> <input type="number" name="due" step="0.01" value="{{data.due}}" required>
-
-<button type="submit">
-Update Voucher
-</button>
-
-</form>
-
-<a class="back" href="/">⬅ Back to Dashboard</a>
-
+    </div><!-- /card -->
+  </div>
 </div>
 
-</body>
-</html>
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+  function fmt(n) { return n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  document.querySelectorAll('.edit-calc').forEach(input => {
+    input.addEventListener('input', () => {
+      const days  = parseFloat(document.querySelector('[name=days]').value)  || 0;
+      const rate  = parseFloat(document.querySelector('[name=rate]').value)  || 0;
+      const daily = parseFloat(document.querySelector('[name=daily]').value) || 0;
+      const extra = parseFloat(document.querySelector('[name=extra]').value) || 0;
+      const used  = parseFloat(document.querySelector('[name=used]').value)  || 0;
+      const due   = parseFloat(document.querySelector('[name=due]').value)   || 0;
+
+      const totalMilk = (daily * days) + extra - used;
+      const amount    = totalMilk * rate;
+      const finalBill = amount + due;
+
+      document.getElementById('e-milk').textContent   = totalMilk.toFixed(2) + ' KG';
+      document.getElementById('e-amount').textContent = 'PKR ' + fmt(amount);
+      document.getElementById('e-due').textContent    = 'PKR ' + fmt(due);
+      document.getElementById('e-total').textContent  = 'PKR ' + fmt(finalBill);
+    });
+  });
+</script>
+{% endblock %}

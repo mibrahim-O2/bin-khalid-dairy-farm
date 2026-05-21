@@ -1,205 +1,384 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
+{% block title %}Dashboard — Bin Khalid Dairy Farm{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block breadcrumb %}Overview for {{ current_month }}{% endblock %}
 
-<meta charset="UTF-8">
+{% block content %}
 
-<title>Bin Khalid Dairy Farm</title>
+<!-- ═══════════════════════════════════
+     STAT CARDS
+═══════════════════════════════════ -->
+<div class="row g-3 mb-4">
 
-<style>
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="fa-solid fa-droplet"></i></div>
+      <div>
+        <div class="stat-value">{{ "%.1f"|format(milk) }}</div>
+        <div class="stat-label">Milk This Month</div>
+        <div class="stat-sub"><i class="fa-solid fa-weight-scale me-1"></i>Kilograms</div>
+      </div>
+    </div>
+  </div>
 
-body{
-font-family:Arial;
-background:#f4f4f4;
-margin:0;
-}
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-icon gold"><i class="fa-solid fa-money-bill-wave"></i></div>
+      <div>
+        <div class="stat-value">{{ "{:,.0f}".format(income) }}</div>
+        <div class="stat-label">Income This Month</div>
+        <div class="stat-sub"><i class="fa-solid fa-Pakistani-rupee-sign me-1"></i>PKR</div>
+      </div>
+    </div>
+  </div>
 
-.container{
-width:1000px;
-margin:40px auto;
-background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 0 15px rgba(0,0,0,0.1);
-}
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
+      <div>
+        <div class="stat-value">{{ total_customers }}</div>
+        <div class="stat-label">Total Customers</div>
+        <div class="stat-sub"><i class="fa-solid fa-circle-check me-1"></i>Active accounts</div>
+      </div>
+    </div>
+  </div>
 
-h1{
-text-align:center;
-color:#1a7f37;
-}
-
-.report{
-background:#eaf6ea;
-padding:15px;
-margin-bottom:20px;
-border-left:6px solid #1a7f37;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-}
-
-th,td{
-padding:10px;
-border:1px solid #ddd;
-text-align:center;
-}
-
-th{
-background:#1a7f37;
-color:white;
-}
-
-.button{
-padding:6px 10px;
-background:#1a7f37;
-color:white;
-border:none;
-border-radius:5px;
-text-decoration:none;
-cursor:pointer;
-}
-
-.edit{
-background:#2980b9;
-}
-
-.delete{
-background:#c0392b;
-}
-
-.search{
-margin-bottom:20px;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>BIN KHALID DAIRY FARM</h1>
-<a href="/logout" class="button" style="float:right;">Logout</a>
-<div class="report">
-
-<b>This Month Report</b>
-
-<br><br>
-
-Total Milk Sold : {{ milk }} KG
-
-<br>
-
-Total Income : {{ income }} PKR
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-icon teal"><i class="fa-solid fa-receipt"></i></div>
+      <div>
+        <div class="stat-value">{{ total_vouchers }}</div>
+        <div class="stat-label">Vouchers This Month</div>
+        <div class="stat-sub"><i class="fa-solid fa-calendar me-1"></i>{{ current_month }}</div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
+<!-- ═══════════════════════════════════
+     CUSTOMER TABLE  +  ADD FORM
+═══════════════════════════════════ -->
+<div class="row g-4">
 
-<form class="search" method="GET">
+  <!-- LEFT: customer list -->
+  <div class="col-xl-8">
+    <div class="card-bkdf" id="customers">
 
-<input type="text" name="search" placeholder="Search Customer">
+      <div class="card-header-bkdf">
+        <div class="card-title-bkdf">
+          <i class="fa-solid fa-users me-2" style="color:var(--brand-accent);font-size:15px;"></i>
+          Customer Vouchers
+        </div>
+        <!-- Search -->
+        <form method="GET" action="{{ url_for('home') }}" class="d-flex gap-2">
+          <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="text" name="search"
+              placeholder="Search customer…"
+              value="{{ search or '' }}"
+            />
+          </div>
+          <button type="submit" class="btn-primary-bkdf" style="padding:9px 16px;">
+            <i class="fa-solid fa-search"></i>
+          </button>
+          {% if search %}
+          <a href="{{ url_for('home') }}" class="btn-outline-bkdf" style="padding:9px 14px;">
+            <i class="fa-solid fa-xmark"></i>
+          </a>
+          {% endif %}
+        </form>
+      </div>
 
-<button class="button">Search</button>
+      <div class="card-body-bkdf" style="padding-top:16px;">
 
-</form>
+        {% if customers %}
+        <div style="overflow-x:auto;">
+          <table class="table-bkdf">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Total Milk</th>
+                <th>Final Bill</th>
+                <th style="text-align:center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in customers %}
+              <tr>
+                <td style="color:#9aabb9;font-size:12px;">{{ loop.index }}</td>
+                <td>
+                  <div class="customer-pill">
+                    <div class="customer-avatar">{{ c.name[0]|upper }}</div>
+                    <div>
+                      <div style="font-weight:600;">{{ c.name }}</div>
+                      <div style="font-size:11px;color:#9aabb9;">{{ c.days }} days</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge-bkdf badge-green">
+                    <i class="fa-solid fa-calendar-day me-1"></i>{{ c.date }}
+                  </span>
+                </td>
+                <td>
+                  <span style="font-weight:500;">{{ "%.2f"|format(c.total_milk) }}</span>
+                  <span style="font-size:11px;color:#9aabb9;"> KG</span>
+                </td>
+                <td>
+                  <span class="bill-amount">PKR {{ "{:,.0f}".format(c.final_bill) }}</span>
+                </td>
+                <td>
+                  <div class="d-flex gap-2 justify-content-center">
+                    <!-- View bill -->
+                    <a href="{{ url_for('bill', voucher_id=c.id) }}"
+                       target="_blank"
+                       class="btn-icon view"
+                       title="View Bill">
+                      <i class="fa-solid fa-file-invoice"></i>
+                    </a>
+                    <!-- History -->
+                    <a href="{{ url_for('history', customer_name=c.name) }}"
+                       class="btn-icon hist"
+                       title="View History">
+                      <i class="fa-solid fa-clock-rotate-left"></i>
+                    </a>
+                    <!-- Edit -->
+                    <a href="{{ url_for('edit', voucher_id=c.id) }}"
+                       class="btn-icon edit"
+                       title="Edit Voucher">
+                      <i class="fa-solid fa-pen"></i>
+                    </a>
+                    <!-- Delete -->
+                    <form action="{{ url_for('delete', voucher_id=c.id) }}" method="POST" class="d-inline">
+                      <button type="submit"
+                              class="btn-icon delete"
+                              title="Delete"
+                              onclick="return confirm('Delete voucher for {{ c.name }}?')">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fa-solid fa-users-slash"></i></div>
+          <h3>No customers found</h3>
+          <p>
+            {% if search %}No results for "<strong>{{ search }}</strong>". Try a different name.
+            {% else %}Add your first voucher using the form on the right.{% endif %}
+          </p>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- Recent activity -->
+    {% if recent %}
+    <div class="card-bkdf mt-4">
+      <div class="card-header-bkdf">
+        <div class="card-title-bkdf">
+          <i class="fa-solid fa-clock-rotate-left me-2" style="color:var(--brand-gold);font-size:15px;"></i>
+          Recent Activity
+        </div>
+        <span class="badge-bkdf badge-gold">Last 5 entries</span>
+      </div>
+      <div class="card-body-bkdf" style="padding-top:14px;">
+        <div style="overflow-x:auto;">
+          <table class="table-bkdf">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Milk (KG)</th>
+                <th>Bill (PKR)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in recent %}
+              <tr>
+                <td>
+                  <div class="customer-pill">
+                    <div class="customer-avatar" style="width:26px;height:26px;font-size:10px;">
+                      {{ r.name[0]|upper }}
+                    </div>
+                    {{ r.name }}
+                  </div>
+                </td>
+                <td style="font-size:12px;color:#9aabb9;">{{ r.date }}</td>
+                <td>{{ "%.2f"|format(r.total_milk) }}</td>
+                <td style="font-weight:600;">{{ "{:,.0f}".format(r.final_bill) }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div><!-- /col-xl-8 -->
+
+  <!-- RIGHT: Add Voucher form -->
+  <div class="col-xl-4">
+    <div class="card-bkdf" id="add-voucher" style="position:sticky;top:80px;">
+
+      <div class="card-header-bkdf">
+        <div class="card-title-bkdf">
+          <i class="fa-solid fa-plus-circle me-2" style="color:var(--brand-accent);font-size:15px;"></i>
+          New Voucher
+        </div>
+      </div>
+
+      <div class="card-body-bkdf">
+        <form method="POST" action="{{ url_for('add_voucher') }}" id="voucherForm">
+
+          <div class="form-section-title">Customer Info</div>
+
+          <div class="form-group-bkdf">
+            <label class="form-label-bkdf">Customer Name</label>
+            <input type="text" name="name" class="form-control-bkdf"
+                   placeholder="e.g. Ahmad Khan" required
+                   list="customerNames" />
+            <datalist id="customerNames">
+              {% for c in customers %}
+              <option value="{{ c.name }}">{% endfor %}
+            </datalist>
+          </div>
+
+          <div class="form-group-bkdf">
+            <label class="form-label-bkdf">Date</label>
+            <input type="date" name="date" class="form-control-bkdf" required
+                   id="dateField" />
+          </div>
+
+          <div class="form-section-title mt-3">Milk Details</div>
+
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Total Days</label>
+                <input type="number" name="days" class="form-control-bkdf calc-input"
+                       placeholder="30" min="1" required />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Rate / KG</label>
+                <input type="number" name="rate" class="form-control-bkdf calc-input"
+                       placeholder="180" step="0.01" min="0" required />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Daily Milk (KG)</label>
+                <input type="number" name="daily" class="form-control-bkdf calc-input"
+                       placeholder="2.5" step="0.01" min="0" required />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Extra Milk (KG)</label>
+                <input type="number" name="extra" class="form-control-bkdf calc-input"
+                       placeholder="0" step="0.01" value="0" min="0" required />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Milk Used (KG)</label>
+                <input type="number" name="used" class="form-control-bkdf calc-input"
+                       placeholder="0" step="0.01" value="0" min="0" required />
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group-bkdf">
+                <label class="form-label-bkdf">Previous Due</label>
+                <input type="number" name="due" class="form-control-bkdf calc-input"
+                       placeholder="0" step="0.01" value="0" min="0" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Live preview -->
+          <div class="calc-preview" id="calcPreview" style="display:none;">
+            <div style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
+              Live Calculation
+            </div>
+            <div class="calc-row">
+              <span>Total Milk</span>
+              <span id="prev-milk">— KG</span>
+            </div>
+            <div class="calc-row">
+              <span>Milk Amount</span>
+              <span id="prev-amount">— PKR</span>
+            </div>
+            <div class="calc-row">
+              <span>Previous Due</span>
+              <span id="prev-due">— PKR</span>
+            </div>
+            <div class="calc-row total">
+              <span>Total Bill</span>
+              <span id="prev-total">— PKR</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary-bkdf w-100 mt-3" style="justify-content:center;">
+            <i class="fa-solid fa-plus"></i> Add Voucher
+          </button>
+
+        </form>
+      </div>
+    </div>
+  </div><!-- /col-xl-4 -->
+
+</div><!-- /row -->
+
+{% endblock %}
 
 
-<table>
+{% block extra_scripts %}
+<script>
+  // ── Set today's date as default ───────────────────────────
+  document.getElementById('dateField').valueAsDate = new Date();
 
-<tr>
-<th>Customer</th>
-<th>Total Bill</th>
-<th>Actions</th>
-</tr>
+  // ── Live calculator ───────────────────────────────────────
+  const calcInputs = document.querySelectorAll('.calc-input');
+  const preview    = document.getElementById('calcPreview');
 
-{% for customer in customers %}
+  function recalculate() {
+    const days  = parseFloat(document.querySelector('[name=days]').value)  || 0;
+    const rate  = parseFloat(document.querySelector('[name=rate]').value)  || 0;
+    const daily = parseFloat(document.querySelector('[name=daily]').value) || 0;
+    const extra = parseFloat(document.querySelector('[name=extra]').value) || 0;
+    const used  = parseFloat(document.querySelector('[name=used]').value)  || 0;
+    const due   = parseFloat(document.querySelector('[name=due]').value)   || 0;
 
-<tr>
+    const totalMilk = (daily * days) + extra - used;
+    const amount    = totalMilk * rate;
+    const finalBill = amount + due;
 
-<td>{{customer.name}}</td>
+    if (days > 0 || rate > 0 || daily > 0) {
+      preview.style.display = 'block';
+      document.getElementById('prev-milk').textContent   = totalMilk.toFixed(2) + ' KG';
+      document.getElementById('prev-amount').textContent = 'PKR ' + amount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('prev-due').textContent    = 'PKR ' + due.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('prev-total').textContent  = 'PKR ' + finalBill.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    } else {
+      preview.style.display = 'none';
+    }
+  }
 
-<td>{{customer.final_bill}}</td>
-
-<td>
-
-<a class="button"
-href="/bill/{{customer.id}}"
-target="_blank">
-
-Print
-
-</a>
-
-<a class="button edit"
-href="/edit/{{customer.id}}">
-
-Edit
-
-</a>
-
-<form action="/delete/{{customer.id}}"
-method="POST"
-style="display:inline;">
-
-<button class="button delete"
-onclick="return confirm('Delete this voucher?')">
-
-Delete
-
-</button>
-
-</form>
-
-</td>
-
-</tr>
-
-{% endfor %}
-
-</table>
-
-
-<h2>Add Voucher</h2>
-
-<form method="POST" action="/add_voucher">
-
-Name<br>
-<input type="text" name="name" required><br><br>
-
-Date<br>
-<input type="date" name="date" required><br><br>
-
-Total Days<br>
-<input type="number" name="days" required><br><br>
-
-Rate per KG<br>
-<input type="number" name="rate" step="0.01" required><br><br>
-
-Daily Milk<br>
-<input type="number" name="daily" step="0.01" required><br><br>
-
-Extra Milk<br>
-<input type="number" name="extra" step="0.01" required><br><br>
-
-Milk Used<br>
-<input type="number" name="used" step="0.01" required><br><br>
-
-Previous Due<br>
-<input type="number" name="due" step="0.01" required><br><br>
-
-<button class="button">
-Add Voucher
-</button>
-
-</form>
-
-</div>
-
-</body>
-
-</html>
+  calcInputs.forEach(input => input.addEventListener('input', recalculate));
+</script>
+{% endblock %}

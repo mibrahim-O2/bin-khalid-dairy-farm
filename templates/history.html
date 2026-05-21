@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}History — {{ customer_name }}{% endblock %}
+{% block page_title %}Customer History{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('home') }}" style="color:var(--brand-accent);text-decoration:none;">Dashboard</a>
+  &rsaquo; {{ customer_name }}
+{% endblock %}
+
+{% block content %}
+
+<a href="{{ url_for('home') }}" class="btn-outline-bkdf mb-4 d-inline-flex">
+  <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+</a>
+
+<!-- Summary bar -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="fa-solid fa-receipt"></i></div>
+      <div>
+        <div class="stat-value">{{ records|length }}</div>
+        <div class="stat-label">Total Vouchers</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="fa-solid fa-droplet"></i></div>
+      <div>
+        <div class="stat-value">{{ "%.1f"|format(records|sum(attribute='total_milk')) }}</div>
+        <div class="stat-label">Total Milk (KG)</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-icon gold"><i class="fa-solid fa-money-bill-wave"></i></div>
+      <div>
+        <div class="stat-value">{{ "{:,.0f}".format(records|sum(attribute='final_bill')) }}</div>
+        <div class="stat-label">Total Billed (PKR)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- History table -->
+<div class="card-bkdf">
+  <div class="card-header-bkdf">
+    <div>
+      <div class="card-title-bkdf">
+        <i class="fa-solid fa-clock-rotate-left me-2" style="color:var(--brand-accent);font-size:15px;"></i>
+        All Records — {{ customer_name }}
+      </div>
+      <div style="font-size:12px;color:#9aabb9;margin-top:4px;">
+        Complete voucher history, newest first
+      </div>
+    </div>
+    <div class="customer-pill">
+      <div class="customer-avatar">{{ customer_name[0]|upper }}</div>
+      <span style="font-weight:600;color:var(--brand-dark);">{{ customer_name }}</span>
+    </div>
+  </div>
+
+  <div class="card-body-bkdf" style="padding-top:16px;">
+    <div style="overflow-x:auto;">
+      <table class="table-bkdf">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Days</th>
+            <th>Rate</th>
+            <th>Daily</th>
+            <th>Total Milk</th>
+            <th>Amount</th>
+            <th>Due</th>
+            <th>Final Bill</th>
+            <th style="text-align:center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in records %}
+          <tr>
+            <td style="color:#9aabb9;font-size:12px;">#{{ r.id }}</td>
+            <td>
+              <span class="badge-bkdf badge-green">{{ r.date }}</span>
+            </td>
+            <td>{{ r.days }}</td>
+            <td>{{ r.rate }} PKR</td>
+            <td>{{ r.daily }} KG</td>
+            <td><strong>{{ "%.2f"|format(r.total_milk) }}</strong> KG</td>
+            <td>{{ "{:,.0f}".format(r.amount) }}</td>
+            <td style="color:{% if r.due > 0 %}#e8a020{% else %}#1a9e5f{% endif %};">
+              {{ "{:,.0f}".format(r.due) }}
+            </td>
+            <td class="bill-amount">PKR {{ "{:,.0f}".format(r.final_bill) }}</td>
+            <td>
+              <div class="d-flex gap-2 justify-content-center">
+                <a href="{{ url_for('bill', voucher_id=r.id) }}"
+                   target="_blank" class="btn-icon view" title="View Bill">
+                  <i class="fa-solid fa-file-invoice"></i>
+                </a>
+                <a href="{{ url_for('edit', voucher_id=r.id) }}"
+                   class="btn-icon edit" title="Edit">
+                  <i class="fa-solid fa-pen"></i>
+                </a>
+                <form action="{{ url_for('delete', voucher_id=r.id) }}" method="POST" class="d-inline">
+                  <button type="submit" class="btn-icon delete" title="Delete"
+                          onclick="return confirm('Delete this voucher?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

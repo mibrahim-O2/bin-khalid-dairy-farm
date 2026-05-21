@@ -1,250 +1,575 @@
 <!DOCTYPE html>
-
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
-<meta charset="UTF-8">
-<title>Bill</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Bill — {{ data.name }} | Bin Khalid Dairy Farm</title>
 
-<style>
-@font-face {
-    font-family: 'Noto Nastaliq Urdu';
-    src: url("file:///{{ font_path }}") format("truetype");
-}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
-body {
-    font-family: Arial, sans-serif;
-    background:#f4f6f8;
-    margin:0;
-    padding:20px;
-}
-
-.container {
-    width:700px;
-    margin:auto;
-    background:#fff;
-    padding:25px;
-    border-radius:8px;
-    box-shadow:0 0 8px rgba(0,0,0,0.08);
-}
-
-/* HEADER */
-.header {
-    text-align:center;
-}
-
-.logo {
-    height:160px;
-}
-
-.title {
-    font-size:22px;
-    font-weight:bold;
-    color:#1f3a5f;
-    margin-top:5px;
-}
-
-.subtitle {
-    font-size:14px;
-    color:#666;
-}
-
-.contact {
-    font-size:13px;
-    color:#888;
-}
-
-hr {
-    border:none;
-    border-top:1px solid #ddd;
-    margin:15px 0;
-}
-
-/* INFO TEXT */
-.notice {
-    background:#f1f5fb;
-    padding:10px;
-    border-radius:6px;
-    margin-bottom:15px;
-}
-
-.urdu {
-    font-family:'Noto Nastaliq Urdu', serif;
-    direction:rtl;
-    text-align:right;
-    font-size:15px;
-    line-height:1.6;
-}
-
-/* TABLE */
-table {
-    width:100%;
-    border-collapse:collapse;
-}
-
-th, td {
-    padding:10px;
-    border-bottom:1px solid #eee;
-}
-
-th {
-    text-align:left;
-    font-size:14px;
-    color:#333;
-    width:50%;
-}
-
-/* TOTAL */
-.total-box {
-    margin-top:15px;
-    padding:10px;
-    background:#f8fafc;
-    border-radius:6px;
-}
-
-.total-box p {
-    margin:5px 0;
-}
-
-.final {
-    font-weight:bold;
-    font-size:16px;
-    color:#1f3a5f;
-}
-
-/* PAYMENT */
-.payment {
-    margin-top:15px;
-    padding:10px;
-    background:#f9fafb;
-    border-radius:6px;
-}
-
-.payment p {
-    margin:5px 0;
-    font-size:14px;
-}
-
-/* FOOTER */
-.footer {
-    text-align:center;
-    margin-top:20px;
-    font-size:13px;
-    color:#777;
-}
-
-/* BUTTON */
-.print-btn {
-    display:block;
-    margin:15px auto;
-    padding:10px 20px;
-    background:#1f3a5f;
-    color:white;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-/* PRINT */
-@media print {
-    .print-btn {
-        display:none;
+  <style>
+    :root {
+      --brand-dark:   #0d2137;
+      --brand-mid:    #133552;
+      --brand-accent: #1a9e5f;
+      --brand-gold:   #e8a020;
+      --font-display: 'Playfair Display', serif;
+      --font-body:    'DM Sans', sans-serif;
     }
-}
-</style>
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: #e8eef5;
+      padding: 20px 12px 40px;
+      min-height: 100vh;
+    }
+
+    /* ── Action bar ── */
+    .action-bar {
+      max-width: 420px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .btn-action {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 9px;
+      font-size: 13px; font-weight: 500; font-family: var(--font-body);
+      cursor: pointer; border: none; text-decoration: none;
+      transition: all .2s;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--brand-accent), #0e7a49);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(26,158,95,.35);
+    }
+
+    .btn-save:hover  { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(26,158,95,.45); }
+    .btn-back        { background: #fff; color: var(--brand-dark); border: 1.5px solid #dde5ef; }
+    .btn-back:hover  { background: #f0f7f4; color: var(--brand-accent); }
+
+    /* ── Bill paper — fixed mobile width ── */
+    .bill-paper {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(13,33,55,.14);
+      overflow: hidden;
+      /* fixed so screenshot is consistent */
+      min-width: 360px;
+    }
+
+    /* ── Header ── */
+    .bill-header {
+      background: #fff;
+      padding: 24px 24px 18px;
+      border-bottom: 2px solid #f0f7f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .bill-logo-wrap {
+      width: 88px; height: 88px;
+      background: #fff;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 10px;
+      border: 2px solid #e8f5ee;
+      overflow: hidden;
+    }
+
+    .bill-logo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      padding: 0px;
+    }
+
+    .bill-farm-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--brand-dark);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .bill-farm-sub {
+      font-size: 12px;
+      color: #7a8fa6;
+      margin-bottom: 6px;
+    }
+
+    .bill-farm-contact {
+      font-size: 11px;
+      color: #9aabb9;
+    }
+
+    .bill-farm-contact i { margin-right: 4px; color: var(--brand-accent); }
+
+    .bill-voucher-badge {
+      position: absolute;
+      top: 18px; right: 16px;
+      background: #f0f7f4;
+      border-radius: 8px;
+      padding: 6px 10px;
+      text-align: center;
+    }
+
+    .bill-voucher-badge .v-num {
+      font-family: var(--font-display);
+      font-size: 14px;
+      color: var(--brand-accent);
+      font-weight: 700;
+      display: block;
+    }
+
+    .bill-voucher-badge .v-label {
+      font-size: 9px;
+      color: #9aabb9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── Urdu strip ── */
+    .urdu-strip {
+      background: #f0f7f4;
+      border-top: 2px solid var(--brand-accent);
+      border-bottom: 1px solid #d8ede3;
+      padding: 10px 18px;
+      text-align: right;
+      direction: rtl;
+      font-family: 'Noto Nastaliq Urdu', 'Arial Unicode MS', serif;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #1c3a2a;
+    }
+
+    /* ── Customer row ── */
+    .customer-row {
+      display: flex; align-items: center; gap: 12px;
+      background: #f8fafd;
+      margin: 16px 16px 0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      border-left: 3px solid var(--brand-accent);
+    }
+
+    .customer-av {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--brand-accent), #0e7a49);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #fff; font-weight: 700; flex-shrink: 0;
+    }
+
+    .c-label { font-size: 10px; color: #9aabb9; text-transform: uppercase; letter-spacing: .8px; }
+    .c-name  { font-family: var(--font-display); font-size: 16px; color: var(--brand-dark); font-weight: 700; }
+    .c-date  { font-size: 11px; color: var(--brand-accent); margin-top: 2px; }
+
+    /* ── Section title ── */
+    .section-title {
+      font-size: 10px; font-weight: 700;
+      color: var(--brand-accent);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      padding: 14px 16px 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(26,158,95,.25), transparent);
+    }
+
+    /* ── Detail rows ── */
+    .detail-list {
+      padding: 0 16px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 12px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      background: #f8fafd;
+      border: 1px solid #edf2f7;
+    }
+
+    .detail-row:last-child { margin-bottom: 0; }
+
+    .d-label {
+      font-size: 12px;
+      color: #2c3e50;
+      font-weight: 500;
+    }
+
+    .d-label .urdu-small {
+      display: block;
+      font-family: 'Noto Nastaliq Urdu', 'Arial Unicode MS', serif;
+      direction: rtl;
+      font-size: 11px;
+      color: #7a8fa6;
+      margin-top: 1px;
+    }
+
+    .d-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brand-dark);
+      text-align: right;
+    }
+
+    .d-value .d-unit {
+      font-size: 10px;
+      font-weight: 400;
+      color: #9aabb9;
+      margin-left: 2px;
+    }
+
+    .detail-row.highlight {
+      background: #f0f7f4;
+      border-color: #c2e8d5;
+    }
+
+    .detail-row.highlight .d-label { color: var(--brand-accent); font-weight: 600; }
+    .detail-row.highlight .d-value { color: var(--brand-accent); }
+
+    /* ── Totals box ── */
+    .totals-box {
+      margin: 14px 16px 0;
+      background: linear-gradient(135deg, var(--brand-dark), var(--brand-mid));
+      border-radius: 12px;
+      padding: 16px 18px;
+      color: #fff;
+    }
+
+    .totals-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      font-size: 12px;
+    }
+
+    .totals-row:last-child { border-bottom: none; }
+    .totals-row .t-label   { color: rgba(255,255,255,.6); }
+    .totals-row .t-value   { font-weight: 600; }
+
+    .totals-row.final-row {
+      margin-top: 8px; padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.15);
+      font-size: 15px; font-family: var(--font-display);
+    }
+
+    .totals-row.final-row .t-value { color: #6ee7b7; font-size: 18px; }
+
+    /* ── Payment cards ── */
+    .payment-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 0 16px;
+      margin-top: 14px;
+    }
+
+    .pay-card {
+      border-radius: 10px; padding: 12px 14px;
+      border: 1.5px solid #edf2f7;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .pay-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    .ep { background: rgba(100,200,120,.12); color: #2e9c4a; }
+    .jc { background: rgba(255,52,0,.08);    color: #e84118; }
+
+    .pay-title { font-size: 10px; color: #9aabb9; }
+    .pay-num   { font-size: 12px; font-weight: 700; color: var(--brand-dark); }
+
+    .acct-note {
+      text-align: center;
+      font-size: 11px; color: #9aabb9;
+      padding: 8px 16px 0;
+    }
+
+    /* ── Footer ── */
+    .bill-footer {
+      margin: 16px 16px 0;
+      background: #f0f7f4;
+      border-radius: 10px;
+      padding: 12px 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .bill-footer p {
+      font-size: 12px;
+      color: #7a8fa6;
+    }
+
+    .bill-footer strong { color: var(--brand-accent); }
+
+    /* ── Save as image hint ── */
+    .save-hint {
+      max-width: 420px;
+      margin: 14px auto 0;
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex; align-items: flex-start; gap: 10px;
+      border: 1.5px solid #dde5ef;
+      font-size: 12px; color: #7a8fa6; line-height: 1.6;
+    }
+
+    .save-hint i { color: var(--brand-accent); margin-top: 2px; flex-shrink: 0; }
+
+    /* ── Screenshot mode: hide controls ── */
+    .no-screenshot { }
+
+    @media (max-width: 460px) {
+      body { padding: 12px 8px 32px; }
+      .bill-paper { min-width: unset; border-radius: 12px; }
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="container">
-
-<!-- HEADER -->
-
-<div class="header">
-    <img src="{{ url_for('static', filename='buffalo.png') }}" class="logo">
-    <div class="title">BIN KHALID DAIRY FARM</div>
-    <div class="subtitle">Fresh Milk, Happy Customers</div>
-    <div class="contact">0300-1234567 | Shahdadpur</div>
+<!-- Action bar -->
+<div class="action-bar no-screenshot">
+  <a href="{{ url_for('home') }}" class="btn-action btn-back">
+    <i class="fa-solid fa-arrow-left"></i> Back
+  </a>
+  <button class="btn-action btn-save" onclick="saveAsImage()">
+    <i class="fa-solid fa-image"></i> Save as Image
+  </button>
 </div>
 
-<button class="print-btn" onclick="window.print()">Print Bill</button>
+<!-- Bill paper — this is what gets captured -->
+<div class="bill-paper" id="billCapture">
 
-<hr>
+  <!-- HEADER with real logo -->
+  <div class="bill-header">
 
-<!-- NOTICE -->
-
-<div class="notice">
-    <div class="urdu">
-        محترم صارف! براہِ کرم اپنا بل ہر ماہ کی 5 تاریخ تک جمع کروائیں۔
+    <div class="bill-voucher-badge">
+      <span class="v-num">#{{ '%04d' % data.id }}</span>
+      <span class="v-label">Voucher</span>
     </div>
+
+    <div class="bill-logo-wrap">
+      <img src="{{ url_for('static', filename='bufalo.png') }}"
+           alt="Bin Khalid Dairy Farm Logo" />
+    </div>
+
+    <div class="bill-farm-name">BIN KHALID DAIRY FARM</div>
+    <div class="bill-farm-sub">Fresh Milk — Happy Customers</div>
+    <div class="bill-farm-contact">
+      <i class="fa-solid fa-phone"></i>0301-3577103
+      &nbsp;&nbsp;
+      <i class="fa-solid fa-location-dot"></i>Shahdadpur, Sindh
+    </div>
+
+  </div>
+
+  <!-- URDU NOTICE -->
+  <div class="urdu-strip">
+    محترم صارف! براہِ کرم اپنا بل ہر ماہ کی 5 تاریخ تک جمع کروائیں۔
+  </div>
+
+  <!-- CUSTOMER ROW -->
+  <div class="customer-row">
+    <div class="customer-av">{{ data.name[0]|upper }}</div>
+    <div>
+      <div class="c-label">Bill For / گاہک</div>
+      <div class="c-name">{{ data.name }}</div>
+      <div class="c-date"><i class="fa-solid fa-calendar-day me-1"></i>{{ data.date }}</div>
+    </div>
+  </div>
+
+  <!-- MILK DETAILS -->
+  <div class="section-title">
+    <i class="fa-solid fa-droplet"></i> Milk Details / دودھ کی تفصیل
+  </div>
+
+  <div class="detail-list">
+
+    <div class="detail-row">
+      <div class="d-label">
+        Billing Period
+        <span class="urdu-small">بلنگ مدت</span>
+      </div>
+      <div class="d-value">{{ data.days }}<span class="d-unit">days</span></div>
+    </div>
+
+    <div class="detail-row">
+      <div class="d-label">
+        Rate per KG
+        <span class="urdu-small">قیمت فی کلو</span>
+      </div>
+      <div class="d-value">{{ data.rate }}<span class="d-unit">PKR</span></div>
+    </div>
+
+    <div class="detail-row">
+      <div class="d-label">
+        Daily Milk
+        <span class="urdu-small">روزانہ دودھ</span>
+      </div>
+      <div class="d-value">{{ data.daily }}<span class="d-unit">KG</span></div>
+    </div>
+
+    <div class="detail-row">
+      <div class="d-label">
+        Extra Milk Added
+        <span class="urdu-small">اضافی دودھ</span>
+      </div>
+      <div class="d-value">{{ data.extra }}<span class="d-unit">KG</span></div>
+    </div>
+
+    <div class="detail-row">
+      <div class="d-label">
+        Milk Deducted
+        <span class="urdu-small">کم دودھ</span>
+      </div>
+      <div class="d-value">{{ data.used }}<span class="d-unit">KG</span></div>
+    </div>
+
+    <div class="detail-row highlight">
+      <div class="d-label">
+        Total Milk
+        <span class="urdu-small">کل دودھ</span>
+      </div>
+      <div class="d-value">{{ data.total_milk }}<span class="d-unit">KG</span></div>
+    </div>
+
+  </div>
+
+  <!-- BILL SUMMARY -->
+  <div class="section-title">
+    <i class="fa-solid fa-calculator"></i> Bill Summary / حساب کتاب
+  </div>
+
+  <div class="totals-box">
+    <div class="totals-row">
+      <span class="t-label">
+        Milk Amount (کل رقم)<br>
+        <span style="font-size:10px;color:rgba(255,255,255,.35);">
+          {{ data.total_milk }} KG × {{ data.rate }} PKR
+        </span>
+      </span>
+      <span class="t-value">PKR {{ "{:,.0f}".format(data.amount) }}</span>
+    </div>
+    <div class="totals-row">
+      <span class="t-label">Previous Due (بقایا رقم)</span>
+      <span class="t-value">PKR {{ "{:,.0f}".format(data.due) }}</span>
+    </div>
+    <div class="totals-row final-row">
+      <span class="t-label">Total Bill (کل بل)</span>
+      <span class="t-value">PKR {{ "{:,.0f}".format(data.final_bill) }}</span>
+    </div>
+  </div>
+
+  <!-- PAYMENT OPTIONS -->
+  <div class="section-title" style="margin-top:14px;">
+    <i class="fa-solid fa-credit-card"></i> Online Payment / آن لائن ادائیگی
+  </div>
+
+  <div class="payment-grid">
+    <div class="pay-card">
+      <div class="pay-icon ep">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+      </div>
+      <div>
+        <div class="pay-title">Easypaisa</div>
+        <div class="pay-num">0324-2991303</div>
+      </div>
+    </div>
+    <div class="pay-card">
+      <div class="pay-icon jc">
+        <i class="fa-solid fa-wallet"></i>
+      </div>
+      <div>
+        <div class="pay-title">JazzCash</div>
+        <div class="pay-num">0324-2991303</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="acct-note">
+    Account Title: <strong style="color:var(--brand-dark);">Muhammad Ibrahim</strong>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="bill-footer">
+    <p>
+      Thank you for choosing <strong>Bin Khalid Dairy Farm</strong> 🐃
+    </p>
+  </div>
+
+</div><!-- /bill-paper -->
+
+<!-- Hint text below bill -->
+<div class="save-hint no-screenshot">
+  <i class="fa-solid fa-circle-info"></i>
+  <span>
+    Tap <strong>Save as Image</strong> to download this bill as a PNG image.
+    You can share it directly on WhatsApp with your customer.
+  </span>
 </div>
 
-<!-- TABLE -->
+<!-- html2canvas CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-<table>
-<tr>
-<th>Customer Name (گاہک)</th>
-<td>{{ data.name }}</td>
-</tr>
+<script>
+  async function saveAsImage() {
+    const bill    = document.getElementById('billCapture');
+    const btn     = document.querySelector('.btn-save');
 
-<tr>
-<th>Date (تاریخ)</th>
-<td>{{ data.date }}</td>
-</tr>
+    // Disable button while rendering
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
+    btn.disabled  = true;
 
-<tr>
-<th>Total Days (کل دن)</th>
-<td>{{ data.days }}</td>
-</tr>
+    try {
+      const canvas = await html2canvas(bill, {
+        scale: 3,            // high resolution (3× for sharp mobile screens)
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        allowTaint: false,
+      });
 
-<tr>
-<th>Rate per KG (قیمت فی کلو)</th>
-<td>{{ data.rate }} PKR</td>
-</tr>
+      // Trigger download
+      const link    = document.createElement('a');
+      link.download = 'bill-{{ data.name | replace(" ", "-") }}-{{ data.date }}.png';
+      link.href     = canvas.toDataURL('image/png');
+      link.click();
 
-<tr>
-<th>Daily Milk (روزانہ دودھ)</th>
-<td>{{ data.daily }} KG</td>
-</tr>
+    } catch (err) {
+      alert('Could not save image. Please try a screenshot instead.');
+      console.error(err);
+    }
 
-<tr>
-<th>Extra Milk (اضافی دودھ)</th>
-<td>{{ data.extra }} KG</td>
-</tr>
-
-<tr>
-<th>Milk Used (کم دودھ)</th>
-<td>{{ data.used }} KG</td>
-</tr>
-
-<tr>
-<th>Total Milk (کل دودھ)</th>
-<td>{{ data.total_milk }} KG</td>
-</tr>
-</table>
-
-<!-- TOTAL -->
-
-<div class="total-box">
-<p>Total Amount (کل رقم): {{ data.amount }} PKR</p>
-<p>Previous Due (بقایا رقم): {{ data.due }} PKR</p>
-<p class="final">TOTAL BILL (کل بل): {{ data.final_bill }} PKR</p>
-</div>
-
-<!-- PAYMENT -->
-
-<div class="payment">
-<p><strong>Online Payment:</strong></p>
-<p>Easypaisa: 03242991303</p>
-<p>JazzCash: 03242991303</p>
-<p>Account Title: Muhammad Ibrahim</p>
-</div>
-
-<div class="footer">
-Thank you for choosing Bin Khalid Dairy Farm 🐃
-</div>
-
-</div>
+    btn.innerHTML = '<i class="fa-solid fa-image"></i> Save as Image';
+    btn.disabled  = false;
+  }
+</script>
 
 </body>
 </html>

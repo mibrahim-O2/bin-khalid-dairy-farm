@@ -1,24 +1,39 @@
+"""
+init_db.py — Database initialisation for Bin Khalid Dairy Farm
+Run once:  python init_db.py
+"""
+
 import sqlite3
 
-conn = sqlite3.connect("database.db")
+DB_PATH = "database.db"
 
-conn.execute("""
-CREATE TABLE IF NOT EXISTS vouchers (
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-name TEXT,
-date TEXT,
-days INTEGER,
-rate REAL,
-daily REAL,
-extra REAL,
-used REAL,
-due REAL,
-total_milk REAL,
-amount REAL,
-final_bill REAL
-)
-""")
 
-print("Database ready!")
+def init_database():
+    conn   = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
 
-conn.close()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS vouchers (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT    NOT NULL,
+            date       TEXT    NOT NULL,
+            days       INTEGER NOT NULL DEFAULT 0,
+            rate       REAL    NOT NULL DEFAULT 0.0,
+            daily      REAL    NOT NULL DEFAULT 0.0,
+            extra      REAL    NOT NULL DEFAULT 0.0,
+            used       REAL    NOT NULL DEFAULT 0.0,
+            due        REAL    NOT NULL DEFAULT 0.0,
+            total_milk REAL    NOT NULL DEFAULT 0.0,
+            amount     REAL    NOT NULL DEFAULT 0.0,
+            final_bill REAL    NOT NULL DEFAULT 0.0,
+            created_at TEXT    DEFAULT (datetime('now'))
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+    print("✅  database.db initialised successfully.")
+
+
+if __name__ == "__main__":
+    init_database()
